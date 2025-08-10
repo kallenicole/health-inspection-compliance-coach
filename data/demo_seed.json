@@ -1,0 +1,702 @@
+{
+  "30191841": {
+    "camis": "30191841",
+    "prob_bc": 0.357,
+    "predicted_points": 10.0,
+    "top_reasons": [
+      "Last points: 10",
+      "Consistent A history"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.6785714285714286,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.5785714285714286,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.47857142857142854,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40356731": {
+    "camis": "40356731",
+    "prob_bc": 0.429,
+    "predicted_points": 12.0,
+    "top_reasons": [
+      "Last points: 12",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.7142857142857143,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.6142857142857143,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.5142857142857142,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40362264": {
+    "camis": "40362264",
+    "prob_bc": 0.464,
+    "predicted_points": 13.0,
+    "top_reasons": [
+      "Last points: 13",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.7321428571428572,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.6321428571428571,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.5321428571428571,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40363298": {
+    "camis": "40363298",
+    "prob_bc": 0.464,
+    "predicted_points": 13.0,
+    "top_reasons": [
+      "Last points: 13",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.7321428571428572,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.6321428571428571,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.5321428571428571,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40363427": {
+    "camis": "40363427",
+    "prob_bc": 0.95,
+    "predicted_points": 37.0,
+    "top_reasons": [
+      "Last points: 37",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.9,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.8,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.6,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40364220": {
+    "camis": "40364220",
+    "prob_bc": 0.95,
+    "predicted_points": 32.0,
+    "top_reasons": [
+      "Last points: 32",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.9,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.8,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.6,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40364296": {
+    "camis": "40364296",
+    "prob_bc": 0.393,
+    "predicted_points": 11.0,
+    "top_reasons": [
+      "Last points: 11",
+      "Consistent A history"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.6964285714285714,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.5964285714285714,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.49642857142857144,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40364389": {
+    "camis": "40364389",
+    "prob_bc": 0.357,
+    "predicted_points": 10.0,
+    "top_reasons": [
+      "Last points: 10",
+      "Consistent A history"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.6785714285714286,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.5785714285714286,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.47857142857142854,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40364443": {
+    "camis": "40364443",
+    "prob_bc": 0.857,
+    "predicted_points": 24.0,
+    "top_reasons": [
+      "Last points: 24",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.9,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.8,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.6,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40364449": {
+    "camis": "40364449",
+    "prob_bc": 0.429,
+    "predicted_points": 12.0,
+    "top_reasons": [
+      "Last points: 12",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.7142857142857143,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.6142857142857143,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.5142857142857142,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40364467": {
+    "camis": "40364467",
+    "prob_bc": 0.143,
+    "predicted_points": 4.0,
+    "top_reasons": [
+      "Last points: 4",
+      "Consistent A history"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.5714285714285714,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.4714285714285714,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.37142857142857144,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40364518": {
+    "camis": "40364518",
+    "prob_bc": 0.357,
+    "predicted_points": 10.0,
+    "top_reasons": [
+      "Last points: 10",
+      "Consistent A history"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.6785714285714286,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.5785714285714286,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.47857142857142854,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40364531": {
+    "camis": "40364531",
+    "prob_bc": 0.321,
+    "predicted_points": 9.0,
+    "top_reasons": [
+      "Last points: 9",
+      "Consistent A history"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.6607142857142857,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.5607142857142857,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.46071428571428574,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40364744": {
+    "camis": "40364744",
+    "prob_bc": 0.464,
+    "predicted_points": 13.0,
+    "top_reasons": [
+      "Last points: 13",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.7321428571428572,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.6321428571428571,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.5321428571428571,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40364956": {
+    "camis": "40364956",
+    "prob_bc": 0.429,
+    "predicted_points": 12.0,
+    "top_reasons": [
+      "Last points: 12",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.7142857142857143,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.6142857142857143,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.5142857142857142,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40365075": {
+    "camis": "40365075",
+    "prob_bc": 0.429,
+    "predicted_points": 12.0,
+    "top_reasons": [
+      "Last points: 12",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.7142857142857143,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.6142857142857143,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.5142857142857142,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40365166": {
+    "camis": "40365166",
+    "prob_bc": 0.357,
+    "predicted_points": 10.0,
+    "top_reasons": [
+      "Last points: 10",
+      "Consistent A history"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.6785714285714286,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.5785714285714286,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.47857142857142854,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40365499": {
+    "camis": "40365499",
+    "prob_bc": 0.429,
+    "predicted_points": 12.0,
+    "top_reasons": [
+      "Last points: 12",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.7142857142857143,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.6142857142857143,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.5142857142857142,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40365546": {
+    "camis": "40365546",
+    "prob_bc": 0.464,
+    "predicted_points": 13.0,
+    "top_reasons": [
+      "Last points: 13",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.7321428571428572,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.6321428571428571,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.5321428571428571,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40365632": {
+    "camis": "40365632",
+    "prob_bc": 0.393,
+    "predicted_points": 11.0,
+    "top_reasons": [
+      "Last points: 11",
+      "Consistent A history"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.6964285714285714,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.5964285714285714,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.49642857142857144,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40365841": {
+    "camis": "40365841",
+    "prob_bc": 0.95,
+    "predicted_points": 34.0,
+    "top_reasons": [
+      "Last points: 34",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.9,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.8,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.6,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40365882": {
+    "camis": "40365882",
+    "prob_bc": 0.464,
+    "predicted_points": 13.0,
+    "top_reasons": [
+      "Last points: 13",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.7321428571428572,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.6321428571428571,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.5321428571428571,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40365904": {
+    "camis": "40365904",
+    "prob_bc": 0.0,
+    "predicted_points": 0.0,
+    "top_reasons": [
+      "Last points: 0",
+      "Consistent A history"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.5,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.4,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.3,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40365938": {
+    "camis": "40365938",
+    "prob_bc": 0.95,
+    "predicted_points": 28.0,
+    "top_reasons": [
+      "Last points: 28",
+      "Recent temp/holding issues"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.9,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.8,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.6,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  },
+  "40366002": {
+    "camis": "40366002",
+    "prob_bc": 0.357,
+    "predicted_points": 10.0,
+    "top_reasons": [
+      "Last points: 10",
+      "Consistent A history"
+    ],
+    "top_violation_probs": [
+      {
+        "code": "04M",
+        "probability": 0.6785714285714286,
+        "label": "Food not held at proper temp"
+      },
+      {
+        "code": "04L",
+        "probability": 0.5785714285714286,
+        "label": "Evidence of mice"
+      },
+      {
+        "code": "10F",
+        "probability": 0.47857142857142854,
+        "label": "Personal cleanliness"
+      }
+    ],
+    "model_version": "0.1.0",
+    "data_version": "demo-seed"
+  }
+}

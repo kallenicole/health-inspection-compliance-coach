@@ -1,0 +1,35 @@
+name: Deploy to Cloud Run
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.DEPLOY_SA_EMAIL }}
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+      - name: Configure Docker
+        run: gcloud auth configure-docker "${{ secrets.ARTIFACT_REGION }}-docker.pkg.dev" --quiet
+      - name: Build & Push
+        run: |
+          IMAGE="${{ secrets.ARTIFACT_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/hicc/hicc-api:$(git rev-parse --short HEAD)"
+          docker build -t "$IMAGE" -f docker/Dockerfile .
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+      - name: Deploy
+        run: |
+          gcloud run deploy hicc-api \
+            --image "$IMAGE" \
+            --region "${{ secrets.CLOUD_RUN_REGION }}" \
+            --platform managed \
+            --allow-unauthenticated \
+            --min-instances=0 --max-instances=3 --memory=1Gi --cpu=1

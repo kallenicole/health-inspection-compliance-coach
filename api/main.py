@@ -1,14 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from api.routers.score import router as score_router
-from api.routers.search import router as search_router 
+from api.routers.search import router as search_router
+from api.routers.admin import router as admin_router
 
 app = FastAPI(
     title="Health Inspection Compliance Coach",
     version="0.1.0",
-    description="Predict next inspection risk and likely violation categories for NYC restaurants."
+    description="Predict next inspection risk and likely violation categories"
 )
 
+# CORS (wide-open for now; tighten to your Vercel domain later)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,6 +32,7 @@ def metadata():
         "source": "NYC Open Data (inspections), nightly ETL"
     }
 
+# Routers go LAST (after app is defined)
 app.include_router(score_router, prefix="")
-
 app.include_router(search_router, prefix="")
+app.include_router(admin_router, prefix="")

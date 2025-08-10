@@ -1,0 +1,28 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hicc-api
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "3"
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      containers:
+        - image: us-central1-docker.pkg.dev/PROJECT_ID/hicc/hicc-api:latest
+          env:
+            - name: MODEL_PATH
+              value: /app/models/model.joblib
+            - name: DATA_WINDOW_DAYS
+              value: "1095"
+            - name: DEMO_SEED_FILE
+              value: /app/data/demo_seed.json
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+  traffic:
+    - percent: 100
+      latestRevision: true

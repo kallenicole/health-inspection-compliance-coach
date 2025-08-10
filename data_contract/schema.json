@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ScoreResponse",
+  "type": "object",
+  "required": ["camis", "prob_bc", "top_reasons", "top_violation_probs", "model_version", "data_version"],
+  "properties": {
+    "camis": { "type": "string" },
+    "prob_bc": { "type": "number", "minimum": 0, "maximum": 1 },
+    "predicted_points": { "type": ["number", "null"] },
+    "top_reasons": { "type": "array", "items": { "type": "string" } },
+    "top_violation_probs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "probability", "label"],
+        "properties": {
+          "code": { "type": "string" },
+          "probability": { "type": "number", "minimum": 0, "maximum": 1 },
+          "label": { "type": "string" }
+        }
+      }
+    },
+    "model_version": { "type": "string" },
+    "data_version": { "type": "string" }
+  }
+}

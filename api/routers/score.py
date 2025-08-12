@@ -7,6 +7,10 @@ from typing import List
 from api.models import ScoreRequest, ScoreResponse, ViolationProb
 from api.services.model_service import ModelService
 
+
+router = APIRouter()
+svc = ModelService(model_path="", demo_seed="./data/demo_seed.json")
+
 router = APIRouter()
 
 DEMO_SEED_FILE = os.getenv("DEMO_SEED_FILE", "./data/demo_seed.json")
@@ -113,29 +117,51 @@ def _heuristic_from_summary(s):
 
 @router.post("/score", response_model=ScoreResponse)
 def score(req: ScoreRequest):
-    # seeded fast path
+    camis = str(req.camis)
+
+    def attach_rat(payload: dict) -> dict:
+        # pull preloaded features from the ModelService
+        rf = getattr(model_service, "rat_features", {}).get(camis)
+        if rf:
+            payload.update({
+                "rat_index": rf.get("rat_index"),
+                "rat311_cnt_180d_k1": rf.get("rat311_cnt_180d_k1"),
+                "ratinsp_fail_365d_k1": rf.get("ratinsp_fail_365d_k1"),
+            })
+        return payload
+
+    # Try seeded (demo) path
     try:
-        seeded = model_service.score_camis(req.camis)
-        s = _latest_visit_summary(req.camis)
-        seeded["last_inspection_date"] = s["last_date"] if s else None
-        seeded["last_points"] = s["last_score"] if s else None
-        seeded["last_grade"] = s["last_grade"] if s else None
-        return ScoreResponse(**seeded)
+        payload = model_service.score_camis(camis)  # already may include rat features + heuristic bumps
+        s = _latest_visit_summary(camis)
+        if s:
+            payload.update({
+                "last_inspection_date": s["last_date"],
+                "last_points": s["last_score"],
+                "last_grade": s["last_grade"],
+            })
+        payload = attach_rat(payload)  # safe even if already present
+        return ScoreResponse(**payload)
+
     except KeyError:
-        s = _latest_visit_summary(req.camis)
+        # Heuristic fallback
+        s = _latest_visit_summary(camis)
         if not s:
             raise HTTPException(status_code=404, detail="CAMIS not found")
+
         prob_bc, predicted_points, reasons, top_vios = _heuristic_from_summary(s)
-        return ScoreResponse(
-            camis=str(req.camis),
-            prob_bc=float(prob_bc),
-            predicted_points=float(predicted_points),
-            top_reasons=reasons,
-            top_violation_probs=top_vios,
-            model_version="heuristic-fallback-0.1",
-            data_version="runtime",
-            last_inspection_date=s["last_date"],
-            last_points=s["last_score"],
-            last_grade=s["last_grade"],
-        )
+        payload = {
+            "camis": camis,
+            "prob_bc": float(prob_bc),
+            "predicted_points": float(predicted_points),
+            "top_reasons": reasons,
+            "top_violation_probs": top_vios,
+            "model_version": "heuristic-fallback-0.1",
+            "data_version": "runtime",
+            "last_inspection_date": s["last_date"],
+            "last_points": s["last_score"],
+            "last_grade": s["last_grade"],
+        }
+        payload = attach_rat(payload)  # add rat features in fallback too
+        return ScoreResponse(**payload)
 

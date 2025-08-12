@@ -19,3 +19,6 @@ docker-run:
 	docker build -t hicc-api -f docker/Dockerfile .
 	docker run -p 8080:8080 --env-file .env hicc-api
 
+.PHONY: rats
+rats:
+	python etl/rodent_index.py

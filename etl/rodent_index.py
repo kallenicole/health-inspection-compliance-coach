@@ -44,20 +44,40 @@ def _session():
     return s
 
 def _paged_get(url, params, limit=PAGE_LIMIT, max_rows=200000):
+    """
+    Paged fetch with:
+      1) header token attempt
+      2) if 403, retry once with $$app_token query param
+    """
+    token = os.getenv("NYC_APP_TOKEN")
     sess = _session()
     rows, offset = [], 0
+    used_fallback_param = False
+
     while True:
         qp = dict(params); qp["$limit"] = limit; qp["$offset"] = offset
         r = sess.get(url, params=qp, timeout=READ_TIMEOUT)
-        r.raise_for_status()
-        batch = r.json()
+        if r.status_code == 403 and token and not used_fallback_param:
+            # retry this page once using $$app_token param
+            qp2 = dict(qp); qp2["$$app_token"] = token
+            rf = sess.get(url, params=qp2, timeout=READ_TIMEOUT)
+            if rf.status_code == 200:
+                used_fallback_param = True
+                batch = rf.json()
+            else:
+                rf.raise_for_status()
+                batch = rf.json()
+        else:
+            r.raise_for_status()
+            batch = r.json()
+
         if not batch:
             break
         rows.extend(batch)
         offset += limit
         if offset >= max_rows:
             break
-        time.sleep(0.2)  # be nice to the API
+        time.sleep(0.2)
     return rows
 
 def fetch_311_rodents(since: dt.datetime) -> pd.DataFrame:

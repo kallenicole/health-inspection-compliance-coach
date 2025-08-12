@@ -101,29 +101,32 @@ Score a Restaurant
 ```
 
 # Admin
-Admin (secure)
+
 Refresh data & features
-POST /admin/refresh
+```POST /admin/refresh
 Header: X-Admin-Token: <your-secret>
 → { "ok": true, "steps": ["inspections_seed_ok","rat_index_ok","rat_features_reloaded:####"] }
+```
 
 Check in-memory rat features for a CAMIS
-GET /admin/ratpeek?camis=50117047
+```GET /admin/ratpeek?camis=50117047
 → { "feature_dir":"/tmp","has":true,"value":{ "rat_index":0.68, "rat311_cnt_180d_k1":63, "ratinsp_fail_365d_k1":0 } }
+```
 
 Check raw parquet for CAMIS + coordinates
-GET /admin/rawpeek?camis=50117047
+```GET /admin/rawpeek?camis=50117047
 → { "path":"/app/data/parquet/inspections_raw.parquet","present":true,"lat":..., "lon":... }
-
+```
 
 # Configuration
 Environment variables:
-FEATURE_STORE_DIR — runtime parquet dir (Cloud Run: /tmp)
+```FEATURE_STORE_DIR — runtime parquet dir (Cloud Run: /tmp)
 BAKED_FEATURE_DIR — image-baked parquet fallback (/app/data/parquet)
 ADMIN_TOKEN — required for /admin/refresh
 NYC_APP_TOKEN — optional Socrata token for NYC Open Data
 RATS_DAYS_311 (default 180), RATS_DAYS_INSP (default 365)
 RAT_H3_RES (default 9)
+```
 
 Notes & limitations
 - This is a heuristic MVP (not a trained model yet).

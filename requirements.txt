@@ -1,4 +1,9 @@
 
-h3>=3.7.6
-
+fastapi>=0.111
+uvicorn[standard]>=0.30
+pandas>=2.2
+pyarrow>=15
+pydantic>=2
 requests>=2.32.3
+h3>=4
+# rebuild 1754999633

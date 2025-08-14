@@ -34,14 +34,38 @@ def _parquet_path() -> str:
         raise HTTPException(status_code=500, detail="No data parquet found. Run /admin/refresh or rebuild with data.")
     return p
 
+
 @lru_cache(maxsize=1024)
 def _latest_visit_summary(camis: str):
+    def _read_filtered(path: str, camis: str) -> pd.DataFrame:
+        try:
+            return pd.read_parquet(path, filters=[("camis", "=", camis)])
+        except Exception:
+            df = pd.read_parquet(path)
+            return df[df["camis"].astype(str) == str(camis)]
+
+    def _extract_latlon(row: pd.Series) -> tuple[float | None, float | None]:
+        lat = None
+        lon = None
+        for c in ["latitude", "Latitude", "lat", "LATITUDE"]:
+            if c in row.index and pd.notna(row[c]):
+                try:
+                    lat = float(row[c])
+                    break
+                except Exception:
+                    pass
+        for c in ["longitude", "Longitude", "lon", "LONGITUDE"]:
+            if c in row.index and pd.notna(row[c]):
+                try:
+                    lon = float(row[c])
+                    break
+                except Exception:
+                    pass
+        return lat, lon
+
+    # pick the current parquet (runtime preferred if present)
     p = _parquet_path()
-    try:
-        df = pd.read_parquet(p, filters=[("camis", "=", camis)])
-    except Exception:
-        df = pd.read_parquet(p)
-        df = df[df["camis"].astype(str) == str(camis)]
+    df = _read_filtered(p, camis)
     if df.empty:
         return None
 
@@ -50,24 +74,46 @@ def _latest_visit_summary(camis: str):
     last = df.tail(1).iloc[0]
 
     # last date
-    last_date = str(last["inspection_date"])[:10] if "inspection_date" in df.columns and pd.notna(last["inspection_date"]) else None
+    last_date = (
+        str(last["inspection_date"])[:10]
+        if "inspection_date" in df.columns and pd.notna(last["inspection_date"])
+        else None
+    )
 
     # last score/grade
     try:
         last_score = int(last["score"]) if "score" in df.columns and pd.notna(last["score"]) else None
     except Exception:
         last_score = None
-    last_grade = str(last["grade"]).strip().upper() if "grade" in df.columns and pd.notna(last["grade"]) else None
+    last_grade = (
+        str(last["grade"]).strip().upper()
+        if "grade" in df.columns and pd.notna(last["grade"])
+        else None
+    )
 
-    # same visit rows
+    # coords from current parquet
+    lat, lon = _extract_latlon(last)
+
+    # if missing, try the alternate parquet (baked vs runtime)
+    alt = RAW_FILE_BAKED if p == RAW_FILE_RUNTIME else RAW_FILE_RUNTIME
+    if (lat is None or lon is None) and os.path.exists(alt):
+        df2 = _read_filtered(alt, camis)
+        if not df2.empty:
+            if "inspection_date" in df2.columns:
+                df2 = df2.sort_values("inspection_date")
+            last2 = df2.tail(1).iloc[0]
+            lat2, lon2 = _extract_latlon(last2)
+            lat = lat if lat is not None else lat2
+            lon = lon if lon is not None else lon2
+
+    # same visit rows (for your violation label/prob logic)
     same_visit = df[df["inspection_date"] == last["inspection_date"]] if "inspection_date" in df.columns else df.tail(1)
 
     # build labels per code using violation_description when present
-    labels_by_code = {}
+    labels_by_code: dict[str, str] = {}
     if not same_visit.empty and "violation_code" in same_visit.columns and "violation_description" in same_visit.columns:
         tmp = same_visit.dropna(subset=["violation_code", "violation_description"]).copy()
         if not tmp.empty:
-            # pick the most common description per code
             labels_by_code = (
                 tmp.groupby("violation_code")["violation_description"]
                 .agg(lambda s: s.mode().iloc[0] if not s.mode().empty else s.iloc[0])
@@ -76,11 +122,10 @@ def _latest_visit_summary(camis: str):
             )
 
     # top codes from that visit
-    vio_counts = []
+    vio_counts: list[tuple[str, int, str]] = []
     if not same_visit.empty and "violation_code" in same_visit.columns:
         counts = same_visit["violation_code"].dropna().astype(str).value_counts().head(3)
         for code, cnt in counts.items():
-            # prefer dataset description, then our small dict, else generic
             label = labels_by_code.get(code) or CODE_LABELS.get(code) or f"Violation {code}"
             vio_counts.append((code, int(cnt), label))
 
@@ -88,8 +133,11 @@ def _latest_visit_summary(camis: str):
         "last_date": last_date,
         "last_score": last_score,
         "last_grade": last_grade,
-        "vio_counts": vio_counts,  # list of (code, count, label)
+        "vio_counts": vio_counts,
+        "latitude": lat,
+        "longitude": lon,
     }
+
 
 def _heuristic_from_summary(s):
     last_score = s["last_score"]
@@ -139,6 +187,8 @@ def score(req: ScoreRequest):
                 "last_inspection_date": s["last_date"],
                 "last_points": s["last_score"],
                 "last_grade": s["last_grade"],
+                "latitude": s.get("latitude"),
+                "longitude": s.get("longitude"),
             })
         payload = attach_rat(payload)  # safe even if already present
         return ScoreResponse(**payload)
@@ -161,6 +211,8 @@ def score(req: ScoreRequest):
             "last_inspection_date": s["last_date"],
             "last_points": s["last_score"],
             "last_grade": s["last_grade"],
+            "latitude": s.get("latitude"),
+            "longitude": s.get("longitude"),
         }
         payload = attach_rat(payload)  # add rat features in fallback too
         return ScoreResponse(**payload)

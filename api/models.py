@@ -26,18 +26,18 @@ class ScoreResponse(BaseModel):
     predicted_points: Optional[float] = None
     top_reasons: List[str] = []
     top_violation_probs: List[ViolationProb] = []
-
     model_version: Optional[str] = None
     data_version: Optional[str] = None
-
     last_inspection_date: Optional[str] = None
     last_points: Optional[float] = None
     last_grade: Optional[str] = None
-
     # NEW rat features
     rat_index: Optional[float] = None
     rat311_cnt_180d_k1: Optional[int] = None
     ratinsp_fail_365d_k1: Optional[int] = None
+    # for map
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
     # Silence "model_" protected namespace warning in Pydantic
     if _HAS_CONFIGDICT:

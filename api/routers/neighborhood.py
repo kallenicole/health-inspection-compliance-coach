@@ -17,10 +17,11 @@ COLS = ["camis", "dba", "boro", "building", "street", "zipcode",
 
 
 @lru_cache(maxsize=1)
-def _load_latest_rows() -> pd.DataFrame:
+def _load_neighborhood_index() -> pd.DataFrame:
     """
-    Load the full inspections parquet and return only rows from each restaurant's
-    most recent inspection. Cached until manually cleared on refresh.
+    Load inspections parquet, find each restaurant's latest inspection, and
+    pre-aggregate to ONE row per restaurant with proper grade detection.
+    Cached until manually cleared on refresh. ~26k rows vs. ~150k raw rows.
     """
     p = RAW_FILE_RUNTIME if os.path.exists(RAW_FILE_RUNTIME) else RAW_FILE_BAKED
     if not os.path.exists(p):
@@ -29,9 +30,47 @@ def _load_latest_rows() -> pd.DataFrame:
     df["inspection_date"] = pd.to_datetime(df["inspection_date"], errors="coerce")
     df["score"] = pd.to_numeric(df["score"], errors="coerce")
     df["zipcode"] = df["zipcode"].astype(str).str.strip()
+
+    # Latest inspection date per restaurant
     latest_dates = df.dropna(subset=["inspection_date"]).groupby("camis")["inspection_date"].max()
     df = df.join(latest_dates.rename("latest_date"), on="camis")
-    return df[df["inspection_date"] == df["latest_date"]].copy()
+    latest = df[df["inspection_date"] == df["latest_date"]]
+
+    # Aggregate to ONE row per restaurant; scan all violation rows for a valid grade
+    def _first_valid_grade(s: pd.Series) -> "str | None":
+        for v in s.dropna():
+            g = str(v).strip().upper()
+            if g in ("A", "B", "C"):
+                return g
+        return None
+
+    agg = latest.groupby("camis", as_index=False).agg(
+        dba=("dba", "first"),
+        boro=("boro", "first"),
+        building=("building", "first"),
+        street=("street", "first"),
+        zipcode=("zipcode", "first"),
+        cuisine_description=("cuisine_description", "first"),
+        inspection_date=("inspection_date", "first"),
+        score=("score", "first"),
+        grade=("grade", _first_valid_grade),
+        latitude=("latitude", "first"),
+        longitude=("longitude", "first"),
+    )
+
+    def _infer_grade(row) -> "str | None":
+        g = row["grade"]
+        if g in ("A", "B", "C"):
+            return g
+        s = row["score"]
+        if s is None or pd.isna(s):
+            return None
+        if s <= 13: return "A"
+        if s <= 27: return "B"
+        return "C"
+
+    agg["grade_display"] = agg.apply(_infer_grade, axis=1)
+    return agg
 
 
 @router.get("/neighborhood", summary="List restaurants in a zip code by inspection risk")
@@ -47,48 +86,16 @@ def neighborhood(
     Grades are inferred from the point score when not explicitly recorded (0–13 = A, 14–27 = B, 28+ = C).
     Only the most recent inspection per restaurant is returned.
     """
-    latest_rows = _load_latest_rows()
-    zip_rows = latest_rows[latest_rows["zipcode"] == zip.strip()]
-    if zip_rows.empty:
+    idx = _load_neighborhood_index()
+    df = idx[idx["zipcode"] == zip.strip()]
+    if df.empty:
         return []
 
-    def _first_valid_grade(s: pd.Series) -> str | None:
-        for v in s.dropna():
-            g = str(v).strip().upper()
-            if g in ("A", "B", "C"):
-                return g
-        return None
-
-    def _infer_grade(grade, score):
-        if grade in ("A", "B", "C"):
-            return grade
-        if score is None or pd.isna(score):
-            return None
-        if score <= 13: return "A"
-        if score <= 27: return "B"
-        return "C"
-
-    agg = zip_rows.groupby("camis").agg(
-        dba=("dba", "first"),
-        boro=("boro", "first"),
-        building=("building", "first"),
-        street=("street", "first"),
-        cuisine_description=("cuisine_description", "first"),
-        inspection_date=("inspection_date", "first"),
-        score=("score", "first"),
-        grade=("grade", _first_valid_grade),
-        latitude=("latitude", "first"),
-        longitude=("longitude", "first"),
-    ).reset_index()
-
-    agg["grade_display"] = agg.apply(lambda r: _infer_grade(r["grade"], r["score"]), axis=1)
-
-    # Sort: most risky first (highest score), unscored at end
-    agg = agg.sort_values("score", ascending=False, na_position="last").head(limit)
+    df = df.sort_values("score", ascending=False, na_position="last").head(limit)
 
     today = date.today()
     results = []
-    for r in agg.itertuples(index=False):
+    for r in df.itertuples(index=False):
         last_date = str(r.inspection_date)[:10] if pd.notna(r.inspection_date) else None
         days_since = None
         if last_date:

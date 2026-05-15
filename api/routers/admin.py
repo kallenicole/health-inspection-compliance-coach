@@ -64,8 +64,8 @@ def _run_refresh():
         steps.append(f"search_cache_clear_failed:{e}")
 
     try:
-        from api.routers.neighborhood import _load_latest_rows
-        _load_latest_rows.cache_clear()
+        from api.routers.neighborhood import _load_neighborhood_index
+        _load_neighborhood_index.cache_clear()
         steps.append("neighborhood_cache_cleared")
     except Exception as e:
         steps.append(f"neighborhood_cache_clear_failed:{e}")

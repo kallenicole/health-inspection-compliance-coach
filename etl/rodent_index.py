@@ -1,4 +1,5 @@
 # etl/rodent_index.py
+import gc
 import os, time, datetime as dt, requests
 import pandas as pd
 import h3
@@ -154,6 +155,10 @@ def build_rat_features():
     cnt311_mouse = df311_mouse.groupby("cell").size().to_dict() if not df311_mouse.empty else {}
     cnt311_pest  = dfpests.groupby("cell").size().to_dict()     if not dfpests.empty     else {}
     cntR_fail    = dfr[dfr["fail"]].groupby("cell").size().to_dict() if not dfr.empty   else {}
+
+    # Free the raw DataFrames — count dicts are all we need going forward
+    del df311, df311_rat, df311_mouse, dfpests, dfr
+    gc.collect()
 
     raw = pd.read_parquet(raw_path, columns=["camis","latitude","longitude"]).dropna()
     raw = raw.drop_duplicates("camis", keep="last").copy()

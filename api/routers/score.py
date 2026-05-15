@@ -41,7 +41,7 @@ def _parquet_path() -> str:
     return p
 
 
-@lru_cache(maxsize=1024)
+@lru_cache(maxsize=256)
 def _latest_visit_summary(camis: str):
     def _read_filtered(path: str, camis: str) -> pd.DataFrame:
         try:

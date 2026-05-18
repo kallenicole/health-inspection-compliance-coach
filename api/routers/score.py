@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import pandas as pd
 from datetime import date
 from functools import lru_cache
@@ -322,6 +323,75 @@ def _find_newer_camis(camis: str, s: dict) -> list:
     return results[:3]
 
 
+# Cuisine grouping — kept in sync with etl/train_model.py
+CUISINE_GROUPS = {
+    "Chinese": "asian", "Japanese": "asian", "Korean": "asian",
+    "Thai": "asian", "Vietnamese": "asian", "Asian": "asian",
+    "Taiwanese": "asian", "Filipino": "asian", "Chinese/Japanese": "asian",
+    "Sushi": "asian",
+    "Mexican": "latin", "Caribbean": "latin",
+    "Latin (Cuban, Dominican, Puerto Rican, South & Central American)": "latin",
+    "Dominican": "latin", "Peruvian": "latin",
+    "American": "american", "Hamburgers": "american",
+    "Sandwiches": "american", "Sandwiches/Salads/Mixed Buffet": "american",
+    "Steakhouse": "american",
+    "Italian": "italian", "Pizza": "italian", "Pizza/Italian": "italian",
+    "Chicken": "fast_food", "Hotdogs": "fast_food",
+    "Mediterranean": "mediterranean", "Middle Eastern": "mediterranean",
+    "Turkish": "mediterranean", "Greek": "mediterranean", "Moroccan": "mediterranean",
+    "Indian": "indian", "Pakistani": "indian", "Bangladeshi": "indian", "Afghan": "indian",
+    "Café/Coffee/Tea": "cafe", "Bakery": "cafe", "Donuts": "cafe",
+    "Juice, Smoothies, Fruit Salads": "cafe",
+}
+
+_VALID_BOROS = {"Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"}
+
+
+def _build_ml_features(s: dict, rf: dict) -> pd.DataFrame:
+    """Build a single-row DataFrame matching the features the trained model expects."""
+    scores = [sc for _, sc in s.get("score_history", []) if sc is not None]
+    if len(scores) >= 2:
+        score_delta = float(scores[-1] - scores[-2])
+        recent = scores[-4:]
+        if len(recent) >= 3:
+            xs = np.arange(len(recent), dtype=float)
+            score_trend = float(np.polyfit(xs, recent, 1)[0])
+        else:
+            score_trend = score_delta
+    else:
+        score_delta = 0.0
+        score_trend = 0.0
+
+    last_vios = s.get("last_violations", [])
+    vio_codes = {v["code"] for v in last_vios}
+    recurrence = s.get("recurrence", {})
+    max_recur = float(min(max(recurrence.values(), default=0), 10))
+    days_since = s.get("days_since_last") or 0
+    days_overdue = float(max(0, days_since - 365))
+    cuisine = str(s.get("cuisine") or "").strip()
+    boro = str(s.get("boro") or "").strip()
+
+    return pd.DataFrame([{
+        "last_score":        float(s["last_score"]) if s.get("last_score") is not None else np.nan,
+        "score_delta":       score_delta,
+        "score_trend":       score_trend,
+        "days_since_last":   float(min(days_since, 730)),
+        "days_overdue":      days_overdue,
+        "inspection_count":  float(min(s.get("inspection_count", 1), 10)),
+        "critical_fraction": float(s.get("critical_fraction", 0.0)),
+        "n_violations":      float(len(last_vios)),
+        "has_mice_vio":      int("04L" in vio_codes),
+        "has_temp_vio":      int("04M" in vio_codes),
+        "has_vermin_vio":    int("08A" in vio_codes),
+        "consec_a":          float(s.get("consec_a", 0)),
+        "max_recurrence":    max_recur,
+        "rat_index":         float(rf["rat_index"]) if rf and rf.get("rat_index") is not None else np.nan,
+        "pest_index":        float(rf["pest_index"]) if rf and rf.get("pest_index") is not None else np.nan,
+        "cuisine_group":     CUISINE_GROUPS.get(cuisine, "other"),
+        "boro":              boro if boro in _VALID_BOROS else "other",
+    }])
+
+
 # Borough B/C risk adjustment derived from NYC inspection data (deviation from 7.8% mean)
 BORO_RISK_DELTA = {
     "Queens": +0.03,
@@ -473,47 +543,43 @@ def score(req: ScoreRequest):
             })
         return payload
 
-    # Try seeded (demo) path
+    # Load inspection history — needed for all paths
+    s = _latest_visit_summary(camis)
+    if not s:
+        raise HTTPException(status_code=404, detail="CAMIS not found")
+
+    # Rat features for this restaurant
+    rf = getattr(model_service, "rat_features", {}).get(camis, {})
+
+    # Heuristic gives reasons, predicted_points, violation probs
+    h_prob_bc, predicted_points, reasons, top_vios = _heuristic_from_summary(s)
+
+    # Try ML model for prob_bc (better calibrated, AUC ~0.75)
+    model_version = "heuristic-v3"
+    prob_bc = h_prob_bc
     try:
-        payload = model_service.score_camis(camis)
-        s = _latest_visit_summary(camis)
-        if s:
-            payload.update({
-                "last_inspection_date": s["last_date"],
-                "last_points": s["last_score"],
-                "last_grade": s["last_grade"],
-                "latitude": s.get("latitude"),
-                "longitude": s.get("longitude"),
-                "score_history": s.get("score_history", []),
-                "last_violations": s.get("last_violations", []),
-                "suggested_camis": _find_newer_camis(camis, s),
-            })
-        payload = attach_rat(payload)
-        return ScoreResponse(**payload)
+        features_df = _build_ml_features(s, rf)
+        prob_bc = model_service.ml_predict(features_df)
+        model_version = "ml-v1"
+    except Exception:
+        pass  # fall back to heuristic prob_bc silently
 
-    except KeyError:
-        # Heuristic fallback
-        s = _latest_visit_summary(camis)
-        if not s:
-            raise HTTPException(status_code=404, detail="CAMIS not found")
-
-        prob_bc, predicted_points, reasons, top_vios = _heuristic_from_summary(s)
-        payload = {
-            "camis": camis,
-            "prob_bc": float(prob_bc),
-            "predicted_points": float(predicted_points),
-            "top_reasons": reasons,
-            "top_violation_probs": top_vios,
-            "model_version": "heuristic-v3",
-            "data_version": "runtime",
-            "last_inspection_date": s["last_date"],
-            "last_points": s["last_score"],
-            "last_grade": s["last_grade"],
-            "latitude": s.get("latitude"),
-            "longitude": s.get("longitude"),
-            "score_history": s.get("score_history", []),
-            "last_violations": s.get("last_violations", []),
-            "suggested_camis": _find_newer_camis(camis, s),
-        }
-        payload = attach_rat(payload)
-        return ScoreResponse(**payload)
+    payload = {
+        "camis": camis,
+        "prob_bc": float(prob_bc),
+        "predicted_points": float(predicted_points),
+        "top_reasons": reasons,
+        "top_violation_probs": top_vios,
+        "model_version": model_version,
+        "data_version": "runtime",
+        "last_inspection_date": s["last_date"],
+        "last_points": s["last_score"],
+        "last_grade": s["last_grade"],
+        "latitude": s.get("latitude"),
+        "longitude": s.get("longitude"),
+        "score_history": s.get("score_history", []),
+        "last_violations": s.get("last_violations", []),
+        "suggested_camis": _find_newer_camis(camis, s),
+    }
+    payload = attach_rat(payload)
+    return ScoreResponse(**payload)

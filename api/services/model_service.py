@@ -3,6 +3,12 @@ import os, json
 from typing import Dict, Any
 import pandas as pd
 
+try:
+    import joblib
+    _JOBLIB_AVAILABLE = True
+except ImportError:
+    _JOBLIB_AVAILABLE = False
+
 class ModelService:
     """
     Loads demo seed and rat features.
@@ -21,9 +27,10 @@ class ModelService:
         # Demo seed baked fallback (inside image)
         self.baked_seed = os.getenv("BAKED_DEMO_SEED_FILE", "./data/demo_seed.json")
 
-        # Load seed + features
+        # Load seed + features + ML model
         self._demo = self._load_demo_seed()
         self.rat_features = self._load_rat_features()
+        self.ml_model = self._load_ml_model()
 
     # ---------- loading ----------
 
@@ -87,6 +94,26 @@ class ModelService:
         except Exception as e:
             print(f"[model_service] WARNING: failed to load rat features: {e}", flush=True)
         return {}
+
+    def _load_ml_model(self):
+        """Load trained scikit-learn model from MODEL_PATH; returns None if unavailable."""
+        if not _JOBLIB_AVAILABLE:
+            return None
+        try:
+            path = self.model_path
+            if path and os.path.exists(path):
+                model = joblib.load(path)
+                print(f"[model_service] ML model loaded from {path}", flush=True)
+                return model
+        except Exception as e:
+            print(f"[model_service] Could not load ML model: {e}", flush=True)
+        return None
+
+    def ml_predict(self, features_df) -> float:
+        """Return predicted prob_bc for a single-row features DataFrame. Raises if model unavailable."""
+        if self.ml_model is None:
+            raise RuntimeError("ML model not loaded")
+        return float(self.ml_model.predict_proba(features_df)[0, 1])
 
     def reload_rat_features(self) -> int:
         """Reload features into memory; return count."""

@@ -13,7 +13,7 @@ from api.services.model_service import ModelService
 router = APIRouter()
 
 DEMO_SEED_FILE = os.getenv("DEMO_SEED_FILE", "./data/demo_seed.json")
-MODEL_PATH = os.getenv("MODEL_PATH", "./models/dummy.joblib")
+MODEL_PATH = os.getenv("MODEL_PATH", "./models/score_model.joblib")
 model_service = ModelService(model_path=MODEL_PATH, demo_seed=DEMO_SEED_FILE)
 
 RUNTIME_PARQUET_DIR = os.getenv("FEATURE_STORE_DIR", "/tmp/data/parquet")

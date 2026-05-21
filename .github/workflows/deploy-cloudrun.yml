@@ -1,12 +1,10 @@
 name: Deploy to Cloud Run
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:  # run manually from GitHub Actions UI once GCP secrets are configured
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Skip entire job if GCP credentials aren't configured (e.g. app is on Railway)
-    if: ${{ secrets.WIF_PROVIDER != '' }}
     permissions:
       contents: read
       id-token: write

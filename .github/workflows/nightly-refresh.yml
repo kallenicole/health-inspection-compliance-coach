@@ -8,7 +8,7 @@ on:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 55
     steps:
       - name: Trigger ETL refresh
         env:
@@ -37,7 +37,7 @@ jobs:
         run: |
           BASE_URL="${API_URL%/}"
           echo "Polling $BASE_URL/admin/refresh/status ..."
-          for i in $(seq 1 40); do
+          for i in $(seq 1 90); do
             sleep 30
             response=$(curl -s -w "\n%{http_code}" "$BASE_URL/admin/refresh/status" \
               -H "X-Admin-Token: $ADMIN_TOKEN" \
@@ -55,5 +55,5 @@ jobs:
               exit 0
             fi
           done
-          echo "Timed out waiting for refresh (20 min)"
+          echo "Timed out waiting for refresh (45 min)"
           exit 1

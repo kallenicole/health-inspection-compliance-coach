@@ -5,6 +5,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Skip entire job if GCP credentials aren't configured (e.g. app is on Railway)
+    if: ${{ secrets.WIF_PROVIDER != '' }}
     permissions:
       contents: read
       id-token: write

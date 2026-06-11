@@ -42,6 +42,19 @@ def _run_refresh():
         steps.append(f"rat_reload_failed:{e}")
 
     try:
+        from etl.precompute_scores import precompute
+        n = precompute()
+        steps.append(f"ml_scores_ok:{n}")
+    except Exception as e:
+        steps.append(f"ml_scores_failed:{e}")
+
+    try:
+        count = model_service.reload_ml_scores()
+        steps.append(f"ml_scores_reloaded:{count}")
+    except Exception as e:
+        steps.append(f"ml_scores_reload_failed:{e}")
+
+    try:
         from api.routers.insights import _compute_insights
         _compute_insights.cache_clear()
         steps.append("insights_cache_cleared")

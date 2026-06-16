@@ -50,8 +50,13 @@ jobs:
               exit 1
             fi
             running=$(echo "$body" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('running', True))" 2>/dev/null)
+            last=$(echo "$body" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('last_result'))" 2>/dev/null)
             if [ "$running" = "False" ]; then
-              echo "Refresh complete."
+              if [ "$last" = "None" ]; then
+                echo "Process restarted mid-refresh (last_result is null) — likely OOM crash"
+                exit 1
+              fi
+              echo "Refresh complete: $last"
               exit 0
             fi
           done

@@ -41,18 +41,11 @@ def _run_refresh():
     except Exception as e:
         steps.append(f"rat_reload_failed:{e}")
 
-    try:
-        from etl.precompute_scores import precompute
-        n = precompute()
-        steps.append(f"ml_scores_ok:{n}")
-    except Exception as e:
-        steps.append(f"ml_scores_failed:{e}")
-
-    try:
-        count = model_service.reload_ml_scores()
-        steps.append(f"ml_scores_reloaded:{count}")
-    except Exception as e:
-        steps.append(f"ml_scores_reload_failed:{e}")
+    # NOTE: precompute_scores() is NOT run here — it loads sklearn + full parquet
+    # into a process that is already holding API caches, and caused nightly OOM.
+    # ML scores are baked into the image at deploy time via etl/precompute_scores.py.
+    # ml_scores.parquet is stable until the next code deploy, and the heuristic
+    # covers any new inspection scores in between.
 
     try:
         from api.routers.insights import _compute_insights
